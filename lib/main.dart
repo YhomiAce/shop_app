@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import './pages/products_overview_screen.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -11,23 +13,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'My Shop App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.purple,
+        accentColor: Colors.deepOrange,
+        fontFamily: 'Lato',
       ),
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("MyShop"),
-      ),
-      body: Center(
-        child: Text("Let's build a shop"),
-      ),
+      home: ProductOverviewScreen(),
     );
   }
 }
