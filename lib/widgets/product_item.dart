@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../models/product.dart';
+import '../providers/product.dart';
 import '../pages/product_detail_screen.dart';
 
 class ProductItem extends StatelessWidget {
-  final Product product;
+  // final Product product;
 
-  ProductItem(this.product);
+  // ProductItem(this.product);
 
   @override
   Widget build(BuildContext context) {
+    final product = Provider.of<Product>(context, listen: false);
+    print('product rebuilds');
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
@@ -25,10 +28,17 @@ class ProductItem extends StatelessWidget {
         ),
         header: Text("\$${product.price}"),
         footer: GridTileBar(
-          leading: IconButton(
-            icon: Icon(Icons.favorite),
-            onPressed: () {},
-            color: Theme.of(context).accentColor,
+          leading: Consumer<Product>(
+            builder: (ctx, product, child) => IconButton(
+              icon: Icon(
+                  product.isFavorites ? Icons.favorite : Icons.favorite_border),
+              onPressed: () {
+                product.toggleFavorites();
+              },
+              color: Theme.of(context).accentColor,
+              
+            ),
+            child: Text("Never changes"),
           ),
           title: Text(
             product.title,
