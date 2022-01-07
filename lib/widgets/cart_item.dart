@@ -38,19 +38,25 @@ class CartItems extends StatelessWidget {
             title: Text('Are you Sure?'),
             content: Text('Do You want to remove Item from the cart?'),
             actions: [
-              FlatButton(
+              TextButton(
                 onPressed: () {
                   Navigator.of(ctx).pop(false);
                 },
                 child: Text("NO"),
-                color: Colors.green,
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.green),
+                ),
               ),
-              FlatButton(
+              TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(true);
                 },
                 child: Text("YES"),
-                color: Colors.red,
+                style: TextButton.styleFrom(
+                  primary: Colors.red,
+                  backgroundColor: Colors.white,
+                  onSurface: Colors.blue,
+                ),
               ),
             ],
           ),
