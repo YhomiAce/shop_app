@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../providers/product.dart';
+import '../providers/products.dart';
 
 class EditProductScreen extends StatefulWidget {
   static const routeName = '/edit-product';
@@ -40,16 +42,29 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   void _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus) {
+      if (_imageUrlController.text.isEmpty) {
+        setState(() {});
+      } else if (!_imageUrlController.text.startsWith('http') ||
+          !_imageUrlController.text.startsWith('https')) {
+        return;
+      } else if (!_imageUrlController.text.endsWith('.png') &&
+          !_imageUrlController.text.endsWith('.jpeg') &&
+          !_imageUrlController.text.endsWith('.jpg') &&
+          !_imageUrlController.text.endsWith('.gif')) {
+        return;
+      }
       setState(() {});
     }
   }
 
   void _saveForm() {
+    final isValid = _form.currentState.validate();
+    if (!isValid) {
+      return;
+    }
     _form.currentState.save();
-    print(_editedProduct.title);
-    print(_editedProduct.description);
-    print(_editedProduct.imageUrl);
-    print(_editedProduct.price);
+    Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+    Navigator.of(context).pop();
   }
 
   @override
@@ -87,6 +102,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     id: null,
                   );
                 },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please provide a value';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 decoration: InputDecoration(
@@ -107,6 +128,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     id: null,
                   );
                 },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please Enter a Price';
+                  } else if (double.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  } else if (double.parse(value) <= 0) {
+                    return 'Please enter a value greater than zero';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 decoration: InputDecoration(
@@ -123,6 +154,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     imageUrl: _editedProduct.imageUrl,
                     id: null,
                   );
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter a description';
+                  } else if (value.length < 10) {
+                    return "Should be atleast 10 characters long";
+                  }
+                  return null;
                 },
               ),
               Row(
@@ -172,9 +211,34 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           id: null,
                         );
                       },
+                      validator: (val) {
+                        if (val.isEmpty) {
+                          return 'Please enter an image url';
+                        } else if (!val.startsWith('http') ||
+                            !val.startsWith('https')) {
+                          return "Please enter a valid url";
+                        } else if (!val.endsWith('.png') &&
+                            !val.endsWith('.jpeg') &&
+                            !val.endsWith('.jpg') &&
+                            !val.endsWith('.gif')) {
+                          return "Please enter a valid image url";
+                        }
+                        return null;
+                      },
                     ),
                   ),
                 ],
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 15),
+                child: FlatButton(
+                  onPressed: _saveForm,
+                  child: Text(
+                    'Save Product',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  color: Theme.of(context).primaryColor,
+                ),
               ),
             ],
           ),
