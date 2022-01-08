@@ -12,6 +12,7 @@ class ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scaffold = ScaffoldMessenger.of(context);
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context, listen: false);
 
@@ -34,12 +35,19 @@ class ProductItem extends StatelessWidget {
             builder: (ctx, product, child) => IconButton(
               icon: Icon(
                   product.isFavorites ? Icons.favorite : Icons.favorite_border),
-              onPressed: () {
-                product.toggleFavorites();
+              onPressed: () async {
+                try {
+                  await product.toggleFavorites();
+                } catch (e) {
+                  scaffold.showSnackBar(
+                    SnackBar(
+                      content: Text('Unable To add to favorites'),
+                    ),
+                  );
+                }
               },
               color: Theme.of(context).accentColor,
             ),
-            child: Text("Never changes"),
           ),
           title: Text(
             product.title,
