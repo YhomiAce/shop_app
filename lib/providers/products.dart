@@ -10,6 +10,8 @@ import 'product.dart';
 class Products with ChangeNotifier {
   List<Product> products = []; // Product.getProducts();
   // var _showFavoritesOnly = false;
+  final String authTken;
+  Products(this.authTken, this.products);
 
   List<Product> get favoriteItems {
     return products.where((item) => item.isFavorites).toList();
@@ -37,11 +39,11 @@ class Products with ChangeNotifier {
   // }
 
   Future<void> fetchAllProducts() async {
-    const url =
-        'https://shopapp-438a8-default-rtdb.firebaseio.com/products.json';
+    final url =
+        'https://shopapp-438a8-default-rtdb.firebaseio.com/products.json?auth=$authTken';
     try {
       final res = await http.get(url);
-      print(json.decode(res.body));
+      print(res.statusCode);
       final extractedData = json.decode(res.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
       if (extractedData == null) {
@@ -65,8 +67,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    const url =
-        'https://shopapp-438a8-default-rtdb.firebaseio.com/products.json';
+    final url =
+        'https://shopapp-438a8-default-rtdb.firebaseio.com/products.json?auth=$authTken';
     // return http
     //     .post(
     //   url,
@@ -128,7 +130,7 @@ class Products with ChangeNotifier {
     final prodIndex = products.indexWhere((prod) => prod.id == id);
 
     final url =
-        'https://shopapp-438a8-default-rtdb.firebaseio.com/products/$id.json';
+        'https://shopapp-438a8-default-rtdb.firebaseio.com/products/$id.json?auth=$authTken';
     try {
       if (prodIndex >= 0) {
         await http.patch(url,
@@ -152,7 +154,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url =
-        'https://shopapp-438a8-default-rtdb.firebaseio.com/products/$id.json';
+        'https://shopapp-438a8-default-rtdb.firebaseio.com/products/$id.json?auth=$authTken';
 
     final existingProductIndex = products.indexWhere((prod) => prod.id == id);
     var existingProduct = products[existingProductIndex];
