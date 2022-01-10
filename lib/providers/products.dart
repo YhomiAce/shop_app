@@ -11,7 +11,8 @@ class Products with ChangeNotifier {
   List<Product> products = []; // Product.getProducts();
   // var _showFavoritesOnly = false;
   final String authTken;
-  Products(this.authTken, this.products);
+  final String userId;
+  Products(this.authTken, this.userId, this.products);
 
   List<Product> get favoriteItems {
     return products.where((item) => item.isFavorites).toList();
@@ -49,14 +50,19 @@ class Products with ChangeNotifier {
       if (extractedData == null) {
         return;
       }
+      final favUrl =
+          'https://shopapp-438a8-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authTken';
+      final favoritesResponse = await http.get(favUrl);
+      final favoriteData = json.decode(favoritesResponse.body);
+
       extractedData.forEach((prodId, prodData) {
         loadedProducts.add(Product(
           id: prodId,
           title: prodData['title'],
           description: prodData['description'],
           price: prodData['price'],
-          imageUrl: prodData['imageUrl'],
-          isFavorites: prodData['isFavorite'],
+          imageUrl: favoriteData == null ? false : prodData['imageUrl'],
+          isFavorites: favoriteData[prodId] ?? false,
         ));
       });
       products = loadedProducts;
@@ -106,7 +112,6 @@ class Products with ChangeNotifier {
           "description": product.description,
           'price': product.price,
           'imageUrl': product.imageUrl,
-          'isFavorite': product.isFavorites,
         }),
       );
 
@@ -139,7 +144,6 @@ class Products with ChangeNotifier {
               'description': newProduct.description,
               'imageUrl': newProduct.imageUrl,
               'price': newProduct.price,
-              'isFavorite': newProduct.isFavorites,
             }));
 
         products[prodIndex] = newProduct;
