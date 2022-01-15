@@ -39,9 +39,11 @@ class Products with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  Future<void> fetchAllProducts() async {
+  Future<void> fetchAllProducts([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
     final url =
-        'https://shopapp-438a8-default-rtdb.firebaseio.com/products.json?auth=$authTken';
+        'https://shopapp-438a8-default-rtdb.firebaseio.com/products.json?auth=$authTken&$filterString';
     try {
       final res = await http.get(url);
       print(res.statusCode);
@@ -54,6 +56,7 @@ class Products with ChangeNotifier {
           'https://shopapp-438a8-default-rtdb.firebaseio.com/userFavorites/$userId.json?auth=$authTken';
       final favoritesResponse = await http.get(favUrl);
       final favoriteData = json.decode(favoritesResponse.body);
+      // print('favorite: $favoriteData');
 
       extractedData.forEach((prodId, prodData) {
         loadedProducts.add(Product(
@@ -61,8 +64,9 @@ class Products with ChangeNotifier {
           title: prodData['title'],
           description: prodData['description'],
           price: prodData['price'],
-          imageUrl: favoriteData == null ? false : prodData['imageUrl'],
-          isFavorites: favoriteData[prodId] ?? false,
+          imageUrl: prodData['imageUrl'],
+          isFavorites:
+              favoriteData == null ? false : favoriteData[prodId] ?? false,
         ));
       });
       products = loadedProducts;
@@ -112,6 +116,7 @@ class Products with ChangeNotifier {
           "description": product.description,
           'price': product.price,
           'imageUrl': product.imageUrl,
+          'creatorId': userId,
         }),
       );
 
